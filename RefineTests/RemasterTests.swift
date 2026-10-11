@@ -190,7 +190,7 @@ struct PunchShaperTests {
 struct RemasterChainTests {
     private func settings() -> RestorationSettings {
         var settings = RestorationSettings()
-        settings.intensity = 1
+        settings.preset = .balanced
         settings.extendBandwidth = false
         settings.restoreStereo = false
         settings.restoreTransients = false

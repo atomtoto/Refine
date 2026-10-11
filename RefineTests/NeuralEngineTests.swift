@@ -71,7 +71,7 @@ struct ApolloTests {
 
         var settings = RestorationSettings()
         settings.engine = .apollo
-        settings.intensity = 1
+        settings.preset = .balanced
         settings.declip = false
         // Compare the network alone: finishing stages are tested separately.
         settings.extendBandwidth = false

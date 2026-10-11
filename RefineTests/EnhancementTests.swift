@@ -38,7 +38,7 @@ private func run(_ chain: EnhancementChain, _ channels: [[Float]]) -> [[Float]] 
 
 private func settings(air: Bool = false, stereo: Bool = false, transients: Bool = false) -> RestorationSettings {
     var settings = RestorationSettings()
-    settings.intensity = 1
+    settings.preset = .balanced
     settings.extendBandwidth = air
     settings.restoreStereo = stereo
     settings.restoreTransients = transients

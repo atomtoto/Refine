@@ -165,7 +165,7 @@ private struct StatusLabel: View {
         case (.restoring, .engine, .enhancementsOnly):
             Label("Lecture du morceau", systemImage: "waveform")
         case (.restoring, .finishing, _):
-            Label("Finitions : équilibre, attaques, volume", systemImage: "slider.horizontal.3")
+            Label("Réparations, mix et master", systemImage: "slider.horizontal.3")
         case (.paused, _, _):
             Label("En pause · rouvrez Refine pour continuer", systemImage: "pause.circle")
         case (.finished, _, _):

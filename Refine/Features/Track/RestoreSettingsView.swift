@@ -10,211 +10,21 @@ struct RestoreSettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Picker("Moteur", selection: $settings.engine) {
-                        ForEach(RestorationSettings.Engine.allCases) { engine in
-                            Label {
-                                Text(engine.title)
-                                Text(engine.detail).font(.footnote)
-                            } icon: {
-                                Image(systemName: engine.systemImage)
-                            }
-                            .tag(engine)
-                            .disabled(!engine.isAvailable)
-                        }
-                    }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-
-                    if settings.engine == .apollo {
-                        Picker("Calcul", selection: $settings.computeUnits) {
-                            ForEach(RestorationSettings.ComputeUnits.allCases) { units in
-                                Text(units.title).tag(units)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Moteur")
-                } footer: {
-                    if settings.engine == .apollo {
-                        Text("Apollo, par Kai Li et Yi Luo (Université Tsinghua, Tencent AI Lab), sous licence [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.fr). [Code source et article](https://github.com/JusperLee/Apollo). Tout se passe sur l'iPhone : rien n'est envoyé en ligne.")
-                    }
-                }
-
-                Section {
-                    Picker("Préréglage", selection: $settings.preset) {
-                        ForEach(RestorationSettings.Preset.allCases) { preset in
-                            Text(preset.title).tag(preset)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .onChange(of: settings.preset) { _, preset in
-                        settings.intensity = preset.intensity
-                    }
-
-                    LabeledContent("Dosage") {
-                        Slider(value: $settings.intensity, in: 0.1...1) {
-                            Text("Dosage")
-                        } minimumValueLabel: {
-                            Image(systemName: "speaker.wave.1")
-                        } maximumValueLabel: {
-                            Image(systemName: "sparkles")
-                        }
-                    }
-                } header: {
-                    Text("Intensité")
-                } footer: {
-                    Text("Dose les finitions et le remastering. « Subtil » reste au plus près de l'original.")
-                }
-
-                Section {
-                    if settings.engine.rebuildsHighs {
-                        Toggle(isOn: $settings.extendBandwidth) {
-                            Label {
-                                Text(settings.engine == .apollo ? "Renforcer les aigus reconstruits" : "Reconstruire les aigus")
-                                Text(extendDetail).font(.footnote)
-                            } icon: {
-                                Image(systemName: "arrow.up.and.down.text.horizontal")
-                            }
-                        }
-                    }
-                    if settings.engine == .signal {
-                        Toggle(isOn: $settings.fillSpectralHoles) {
-                            Label {
-                                Text("Combler les trous du spectre")
-                                Text("Adoucit le son « métallique » des MP3 à bas débit.").font(.footnote)
-                            } icon: {
-                                Image(systemName: "square.grid.3x3.bottomright.filled")
-                            }
-                        }
-                    }
-                    Toggle(isOn: $settings.restoreTransients) {
-                        Label {
-                            Text("Raviver les attaques")
-                            Text("Retire le souffle de pré-écho qui précède les percussions.").font(.footnote)
-                        } icon: {
-                            Image(systemName: "waveform.badge.plus")
-                        }
-                    }
-                    Toggle(isOn: $settings.restoreStereo) {
-                        Label {
-                            Text("Restaurer l'espace stéréo")
-                            Text(stereoDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "arrow.left.and.right")
-                        }
-                    }
-                    Toggle(isOn: $settings.declip) {
-                        Label {
-                            Text("Réparer la saturation")
-                            Text(declipDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "waveform.path.ecg")
-                        }
-                    }
-                } header: {
-                    Text("Étapes")
-                } footer: {
-                    switch settings.engine {
-                    case .apollo:
-                        Text("Apollo reconstruit les aigus et corrige les artefacts sur tout le spectre ; les étapes ci-dessus finissent le travail.")
-                    case .enhancementsOnly:
-                        Text("Le spectre reste tel quel : seules les finitions, le mix et le remastering s'appliquent.")
-                    case .signal:
-                        EmptyView()
-                    }
-                }
-
-                Section {
-                    LabeledContent {
-                        Text(vocalLevelText)
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                    } label: {
-                        Label("Voix", systemImage: "music.microphone")
-                    }
-                    Slider(value: $settings.vocalLevel, in: -6...6, step: 1) {
-                        Text("Voix")
-                    } minimumValueLabel: {
-                        Text("En retrait").font(.caption)
-                    } maximumValueLabel: {
-                        Text("En avant").font(.caption)
-                    }
-                    .accessibilityValue(vocalLevelText)
-                    Toggle(isOn: $settings.tameSibilance) {
-                        Label {
-                            Text("Adoucir sifflantes et duretés")
-                            Text("Calme les « s » qui piquent et les pics agressifs des médiums. À essayer à l'écoute : sur certains morceaux, c'est le style.").font(.footnote)
-                        } icon: {
-                            Image(systemName: "waveform.badge.minus")
-                        }
-                    }
-                    Toggle(isOn: $settings.tightenBass) {
-                        Label {
-                            Text("Resserrer le grave")
-                            Text("Basse et grosse caisse en mono sous 120 Hz, pour un grave plus net.").font(.footnote)
-                        } icon: {
-                            Image(systemName: "speaker.wave.3")
-                        }
-                    }
-                } header: {
-                    Text("Mix")
-                } footer: {
-                    Text("La voix est repérée parce qu'elle est mixée au centre : les instruments placés sur les côtés bougent peu.")
-                }
-
-                Section {
-                    Toggle(isOn: $settings.rebalanceTone) {
-                        Label {
-                            Text("Rééquilibrer le son")
-                            Text(toneDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "slider.vertical.3")
-                        }
-                    }
-                    Toggle(isOn: $settings.restorePunch) {
-                        Label {
-                            Text("Redonner du punch")
-                            Text(punchDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "bolt")
-                        }
-                    }
-                    Toggle(isOn: $settings.adjustLoudness) {
-                        Label {
-                            Text("Ajuster le volume")
-                            Text(loudnessDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "speaker.wave.2")
-                        }
-                    }
-                } header: {
-                    Text("Remasteriser")
-                } footer: {
-                    Text("Seuls les défauts détectés sont corrigés : un morceau déjà bien masterisé ressort tel quel.")
-                }
-
-                Section {
-                    Picker("Format", selection: $settings.exportFormat) {
-                        ForEach(RestorationSettings.ExportFormat.allCases) { format in
-                            Text(format.title).tag(format)
-                        }
-                    }
-                    LabeledContent("Résolution", value: settings.exportFormat.summary)
-                } header: {
-                    Text("Export")
-                } footer: {
-                    Text("ALAC et WAV sont sans perte, en qualité CD. AAC 256 kbps est le format d'Apple Music et celui qu'utilisent les AirPods en Bluetooth : 4 à 5 fois plus léger, sans différence audible au casque.\n\nLes données supprimées par la compression ne peuvent pas être récupérées à l'identique : Refine les reconstruit de façon plausible à partir de ce qui reste.")
-                }
+                highsSection
+                intensitySection
+                repairSection
+                mixSection
+                masterSection
+                exportSection
             }
-            .navigationTitle("Restauration")
+            .navigationTitle(settings.engine.rebuildsHighs ? "Restauration" : "Amélioration")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annuler", systemImage: "xmark", role: .cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Restaurer", systemImage: "wand.and.sparkles", role: .confirm) {
+                    Button(settings.engine.rebuildsHighs ? "Restaurer" : "Améliorer", systemImage: "wand.and.sparkles", role: .confirm) {
                         onRestore(settings)
                         dismiss()
                     }
@@ -223,24 +33,199 @@ struct RestoreSettingsView: View {
         }
     }
 
-    private var extendDetail: String {
-        guard let analysis else { return "Prolonge le spectre au-delà de la coupure." }
-        guard analysis.hasMissingHighs else { return "Rien à reconstruire : le spectre est déjà complet." }
-        return settings.engine == .apollo
-            ? "Ramène les aigus recréés au-delà de \(analysis.cutoffFrequency.kilohertz) à un niveau naturel."
-            : "De \(analysis.cutoffFrequency.kilohertz) jusqu'à \(SpectralRestorer.Parameters.targetTop.kilohertz)."
+    // MARK: - Sections, in the order the audio goes through them
+
+    private var highsSection: some View {
+        Section {
+            Picker("Reconstruction des aigus", selection: $settings.engine) {
+                ForEach(RestorationSettings.Engine.allCases) { engine in
+                    Label {
+                        Text(engine.title)
+                        Text(engine.detail).font(.footnote)
+                    } icon: {
+                        Image(systemName: engine.systemImage)
+                    }
+                    .tag(engine)
+                    .disabled(!engine.isAvailable)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+
+            switch settings.engine {
+            case .apollo:
+                Picker("Calcul", selection: $settings.computeUnits) {
+                    ForEach(RestorationSettings.ComputeUnits.allCases) { units in
+                        Text(units.title).tag(units)
+                    }
+                }
+                setting("Renforcer les aigus recréés", detail: boostDetail, systemImage: "arrow.up.and.down.text.horizontal",
+                        isOn: $settings.extendBandwidth)
+            case .signal:
+                setting("Combler les trous du spectre", detail: "Adoucit le son « métallique » des MP3 à bas débit.",
+                        systemImage: "square.grid.3x3.bottomright.filled", isOn: $settings.fillSpectralHoles)
+            case .enhancementsOnly:
+                EmptyView()
+            }
+        } header: {
+            Text("Reconstruction des aigus")
+        } footer: {
+            // Markdown, for the licence and source links.
+            Text(LocalizedStringKey(highsFooter))
+        }
+    }
+
+    private var intensitySection: some View {
+        Section {
+            Picker("Intensité", selection: $settings.preset) {
+                ForEach(RestorationSettings.Preset.allCases) { preset in
+                    Text(preset.title).tag(preset)
+                }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+        } header: {
+            Text("Intensité")
+        } footer: {
+            Text("Dose les corrections automatiques ci-dessous. « Équilibré » corrige ce que les mesures justifient, « Subtil » en fait environ moitié moins, « Intense » va plus loin sur l'équilibre, le punch et les sifflantes.")
+        }
+    }
+
+    private var repairSection: some View {
+        Section {
+            setting("Réparer la saturation", detail: declipDetail, systemImage: "waveform.path.ecg", isOn: $settings.declip)
+            setting("Nettoyer le pré-écho", detail: preEchoDetail, systemImage: "waveform.badge.minus",
+                    isOn: $settings.restoreTransients)
+            setting("Rouvrir l'image stéréo", detail: stereoDetail, systemImage: "arrow.left.and.right",
+                    isOn: $settings.restoreStereo)
+        } header: {
+            Text("Réparations")
+        } footer: {
+            Text("Chaque réparation n'agit que là où le défaut est présent.")
+        }
+    }
+
+    private var mixSection: some View {
+        Section {
+            LabeledContent {
+                Text(vocalLevelText)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            } label: {
+                Label("Voix", systemImage: "music.microphone")
+            }
+            Slider(value: $settings.vocalLevel, in: -6...6, step: 1) {
+                Text("Voix")
+            } minimumValueLabel: {
+                Text("En retrait").font(.caption)
+            } maximumValueLabel: {
+                Text("En avant").font(.caption)
+            }
+            .accessibilityValue(vocalLevelText)
+            setting("Adoucir sifflantes et duretés",
+                    detail: "Calme les « s » qui piquent et les pics agressifs des médiums. À essayer à l'écoute : sur certains morceaux, c'est le style.",
+                    systemImage: "mouth", isOn: $settings.tameSibilance)
+            setting("Grave en mono", detail: monoBassDetail, systemImage: "circle.and.line.horizontal",
+                    isOn: $settings.tightenBass)
+        } header: {
+            Text("Mix")
+        } footer: {
+            Text("La voix est repérée parce qu'elle est mixée au centre : les instruments placés sur les côtés bougent peu. Ce réglage est appliqué tel quel, quelle que soit l'intensité.")
+        }
+    }
+
+    private var masterSection: some View {
+        Section {
+            setting("Équilibre tonal", detail: toneDetail, systemImage: "slider.vertical.3", isOn: $settings.rebalanceTone)
+            setting("Punch", detail: punchDetail, systemImage: "bolt", isOn: $settings.restorePunch)
+            setting("Volume et crêtes", detail: loudnessDetail, systemImage: "speaker.wave.2", isOn: $settings.adjustLoudness)
+        } header: {
+            Text("Master")
+        } footer: {
+            Text("Seuls les défauts détectés sont corrigés : un morceau déjà bien masterisé ressort tel quel.")
+        }
+    }
+
+    private var exportSection: some View {
+        Section {
+            Picker("Format", selection: $settings.exportFormat) {
+                ForEach(RestorationSettings.ExportFormat.allCases) { format in
+                    Text(format.title).tag(format)
+                }
+            }
+            LabeledContent("Résolution", value: settings.exportFormat.summary)
+        } header: {
+            Text("Export")
+        } footer: {
+            Text("ALAC et WAV sont sans perte, en qualité CD. AAC 256 kbps est le format d'Apple Music et celui qu'utilisent les AirPods en Bluetooth : 4 à 5 fois plus léger, sans différence audible au casque.")
+        }
+    }
+
+    private func setting(_ title: String, detail: String, systemImage: String, isOn: Binding<Bool>) -> some View {
+        Toggle(isOn: isOn) {
+            Label {
+                Text(title)
+                Text(detail).font(.footnote)
+            } icon: {
+                Image(systemName: systemImage)
+            }
+        }
+    }
+
+    // MARK: - Details: what was detected on this track
+
+    private static let nothingToDo = "Rien à corriger sur ce morceau."
+
+    private var highsFooter: String {
+        var parts: [String] = []
+        switch settings.engine {
+        case .apollo:
+            parts.append("Apollo, par Kai Li et Yi Luo (Université Tsinghua, Tencent AI Lab), sous licence [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.fr). [Code source et article](https://github.com/JusperLee/Apollo).")
+        case .signal, .enhancementsOnly:
+            break
+        }
+        if settings.engine.rebuildsHighs {
+            if analysis?.hasMissingHighs == false {
+                parts.append("Le spectre de ce morceau est déjà complet : il n'y a rien à reconstruire.")
+            } else {
+                parts.append("Ce que la compression a supprimé ne peut pas être récupéré à l'identique : Refine le recrée de façon plausible à partir de ce qui reste.")
+            }
+        }
+        parts.append("Tout se passe sur l'iPhone : rien n'est envoyé en ligne.")
+        return parts.joined(separator: " ")
+    }
+
+    private var boostDetail: String {
+        guard let analysis else { return "Ramène les aigus recréés à un niveau naturel." }
+        guard analysis.hasMissingHighs else { return Self.nothingToDo }
+        return "Ramène les aigus recréés au-delà de \(analysis.cutoffFrequency.kilohertz) à un niveau naturel."
+    }
+
+    private var declipDetail: String {
+        guard let analysis else { return "Redessine les crêtes écrêtées." }
+        return analysis.isClipped ? "Détecté : des crêtes écrêtées, elles seront redessinées." : Self.nothingToDo
+    }
+
+    private var preEchoDetail: String {
+        if analysis?.verdict == .authenticLossless { return Self.nothingToDo }
+        return "Retire le souffle que la compression étale juste avant les percussions."
     }
 
     private var stereoDetail: String {
         guard let stereo = analysis?.stereo else { return "Rouvre l'image si l'encodeur l'a resserrée dans les aigus." }
         switch stereo.kind {
         case .collapsed:
-            return "Image resserrée au-dessus de \(stereo.collapseFrequency?.kilohertz ?? "6 kHz") : elle sera rouverte."
+            return "Détecté : image resserrée au-dessus de \(stereo.collapseFrequency?.kilohertz ?? "6 kHz"), elle sera rouverte."
         case .intact:
-            return "Image stéréo intacte : rien à corriger."
+            return Self.nothingToDo
         case .mono:
-            return "Fichier mono : rien à élargir."
+            return "Fichier mono : rien à rouvrir."
         }
+    }
+
+    private var monoBassDetail: String {
+        if analysis?.stereo?.kind == .mono { return "Fichier mono : le grave est déjà au centre." }
+        return "Basse et grosse caisse au centre sous 120 Hz, pour un grave plus net. S'applique à tous les morceaux stéréo."
     }
 
     private var vocalLevelText: String {
@@ -251,48 +236,49 @@ struct RestoreSettingsView: View {
 
     private var toneDetail: String {
         guard let tonal = analysis?.tonal else { return "Corrige un son sourd, trop chargé en grave ou confus." }
-        switch tonal.kind {
-        case .dull: return "Son sourd : \((-tonal.presenceOffset).decibels) de présence en moins qu'un master actuel."
-        case .bright: return "Son plus brillant que la moyenne : les aigus seront légèrement adoucis."
-        case .heavy: return "Grave ou bas-médium en excès : ils seront allégés."
-        case .thin: return "Grave en retrait : il sera renforcé."
-        case .balanced: return "Équilibre déjà naturel : rien à corriger."
+        let issues = tonal.issues.map { issue in
+            switch issue {
+            case .dull: "son sourd (\((-tonal.presenceOffset).decibels) de présence en moins qu'un master actuel)"
+            case .bright: "aigus plus brillants que la moyenne"
+            case .heavyBass: "grave en excès"
+            case .thinBass: "grave en retrait"
+            case .muddy: "bas-médium chargé"
+            }
         }
+        guard let last = issues.last else { return Self.nothingToDo }
+        let list = issues.count == 1 ? last : issues.dropLast().joined(separator: ", ") + " et " + last
+        return "Détecté : \(list). Ce sera corrigé."
     }
 
     private var punchDetail: String {
-        guard let loudness = analysis?.loudness else { return "Rend leurs attaques aux morceaux trop compressés." }
+        guard let loudness = analysis?.loudness else { return "Rend sa dynamique à un master trop compressé." }
         return loudness.kind == .squashed
-            ? "Master écrasé (crête à \(loudness.crest.decibels) du niveau moyen) : les attaques seront ravivées."
-            : "Dynamique préservée : rien à raviver."
+            ? "Détecté : master écrasé (crêtes à \(loudness.crest.decibels) du niveau moyen), sa dynamique sera rendue."
+            : Self.nothingToDo
     }
 
     private var loudnessDetail: String {
-        guard let loudness = analysis?.loudness else { return "Remonte un morceau trop faible et protège les crêtes." }
+        let peaks = "Les crêtes sont limitées à −1 dBTP ; désactivé, ni le volume ni les crêtes ne sont touchés."
+        guard let loudness = analysis?.loudness else { return "Remonte un morceau trop faible. " + peaks }
         switch loudness.kind {
         case .weak:
-            return "Morceau faible (\(Int(loudness.integrated.rounded())) LUFS) : remonté vers \(Int(LoudnessProfile.targetLoudness)) LUFS, crêtes limitées à −1 dBTP."
-        case .squashed:
-            return "Baisse légèrement le volume pour laisser place aux attaques ; crêtes limitées à −1 dBTP."
-        case .natural:
-            return "Volume conservé ; crêtes limitées à −1 dBTP."
+            return "Détecté : morceau faible (\(Int(loudness.integrated.rounded())) LUFS), remonté vers \(Int(LoudnessProfile.targetLoudness)) LUFS. " + peaks
+        case .squashed where settings.restorePunch:
+            return "Baissé un peu pour laisser place au punch. " + peaks
+        case .squashed, .natural:
+            return "Volume conservé. " + peaks
         }
-    }
-
-    private var declipDetail: String {
-        guard let analysis else { return "Redessine les crêtes écrêtées." }
-        return analysis.isClipped ? "Des crêtes écrêtées ont été détectées." : "Aucune saturation détectée."
     }
 }
 
 extension RestorationSettings.Engine {
     var detail: String {
         switch self {
-        case .signal: "Instantané et léger : prolonge le spectre en recopiant les harmoniques existantes."
         case .apollo: isAvailable
             ? "Réseau de neurones entraîné à restaurer les MP3. Plus lent, plus naturel."
             : "Modèle non inclus dans cette version."
-        case .enhancementsOnly: "Sans reconstruire les aigus : seulement les finitions, le mix et le remastering."
+        case .signal: "Instantané : prolonge le spectre en recopiant les harmoniques existantes."
+        case .enhancementsOnly: "Garde le spectre d'origine : seules les réparations, le mix et le master s'appliquent."
         }
     }
 
@@ -300,7 +286,7 @@ extension RestorationSettings.Engine {
         switch self {
         case .signal: "waveform.path"
         case .apollo: "brain"
-        case .enhancementsOnly: "slider.horizontal.3"
+        case .enhancementsOnly: "waveform"
         }
     }
 }

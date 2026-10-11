@@ -41,16 +41,15 @@ final class EnhancementChain {
                 .flatMap { TonalEqualizer.make(profile: $0, amount: amount) }
             : nil
         self.tonal = tonal
-        // Without reconstruction there's no rebuilt band to bring up, only the codec's empty one.
-        air = settings.extendBandwidth && settings.engine.rebuildsHighs
+        air = settings.boostsRebuiltHighs
             ? AirEqualizer.make(
-                averagePower: mid, binWidth: statistics.binWidth, cutoff: analysis.cutoffFrequency, amount: amount,
+                averagePower: mid, binWidth: statistics.binWidth, cutoff: analysis.cutoffFrequency, amount: min(amount, 1),
                 correction: { tonal?.gain(at: $0) ?? 0 })
             : nil
         widener = settings.restoreStereo && channelCount == 2
             ? StereoWidener.make(
                 mid: mid, side: side, binWidth: statistics.binWidth,
-                detectionLimit: min(analysis.cutoffFrequency, 20_000), amount: amount)
+                detectionLimit: min(analysis.cutoffFrequency, 20_000), amount: min(amount, 1))
             : nil
 
         var equalizerGains: [Float]?
@@ -82,7 +81,7 @@ final class EnhancementChain {
 
         // Dynamics: punch for squashed masters, volume for weak ones.
         let squashed = loudness?.kind == .squashed
-        let punchAmount = loudness.map { amount * min(max((LoudnessProfile.squashedCrest + 3 - $0.crest) / 4, 0.4), 1) } ?? 0
+        let punchAmount = loudness.map { min(amount * min(max((LoudnessProfile.squashedCrest + 3 - $0.crest) / 4, 0.4), 1), 1) } ?? 0
         punch = settings.restorePunch && squashed ? PunchShaper(amount: punchAmount, channelCount: channelCount) : nil
         var volume = 0.0
         if settings.adjustLoudness, let loudness {
@@ -118,9 +117,10 @@ final class EnhancementChain {
         return before > 0 && after > 0 ? 10 * log10(after / before) : 0
     }
 
-    /// Full dose from « Équilibré » up; « Subtil » still does something audible.
+    /// 1 at « Équilibré », what the measurements call for; about half at « Subtil », about 1.5 at « Intense ».
+    /// Stages that restore a measured target never go past it.
     static func amount(intensity: Double) -> Double {
-        min(1, (max(intensity, 0) / RestorationSettings.Preset.balanced.intensity).squareRoot())
+        max(intensity, 0) / RestorationSettings.Preset.balanced.intensity
     }
 
     func process(_ channels: [[Float]]) -> [[Float]] {

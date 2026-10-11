@@ -1,9 +1,9 @@
 import Foundation
 
-/// No reconstruction: the file goes straight to the finishing, mix and remastering stages, after declipping if
-/// it's clipped. For files whose highs are intact, or to improve a track without touching its spectrum.
+/// No reconstruction: the file goes straight to the repair, mix and master stages, after declipping if it's
+/// clipped. For files whose highs are intact, or to improve a track without touching its spectrum.
 struct EnhancementOnlyEngine: RestorationEngine {
-    static let name = "Améliorations seules"
+    static let name = "Sans reconstruction"
 
     func restore(_ job: RestorationJob) -> AsyncThrowingStream<RestorationEvent, any Error> {
         .detachedRestoration { try Self.run(job, events: $0) }

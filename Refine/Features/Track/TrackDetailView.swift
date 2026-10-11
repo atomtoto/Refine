@@ -165,7 +165,9 @@ struct TrackDetailView: View {
                         Button {
                             processor.restore(track)
                         } label: {
-                            Label("Restaurer en qualité CD", systemImage: "wand.and.sparkles")
+                            Label(
+                                track.settings.engine.rebuildsHighs ? "Restaurer en qualité CD" : "Améliorer le son",
+                                systemImage: "wand.and.sparkles")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glassProminent)
@@ -250,7 +252,7 @@ struct ArtworkView: View {
 private extension TrackProcessor.RestorationState {
     var title: String {
         switch (stage, engine) {
-        case (.finishing, _): "Finitions : équilibre, attaques, punch, volume…"
+        case (.finishing, _): "Réparations, mix et master…"
         case (.engine, .apollo): "Restauration par l'IA…"
         case (.engine, .signal): "Reconstruction des aigus…"
         case (.engine, .enhancementsOnly): "Lecture du morceau…"

@@ -5,26 +5,26 @@ Refine is an iOS app that enhances and restores music quality from your audio fi
 
 - **Analyse du spectre** : détecte la coupure laissée par l'encodeur (≈ 16–17 kHz à 128 kbps), estime le débit d'origine, repère les « faux lossless » (FLAC/WAV issus d'un MP3) et mesure la largeur stéréo.
 - **Diagnostic du master** : sonie et true peak (ITU-R BS.1770 / EBU R 128), punch (crête/RMS), et équilibre tonal comparé à la moyenne de masters actuels (sourd, chargé en grave, maigre…).
-- **Deux moteurs, 100 % sur l'iPhone** (aucune donnée envoyée, aucun compte) :
+- **Reconstruction des aigus**, 100 % sur l'iPhone (aucune donnée envoyée, aucun compte) :
   - **IA Apollo** (par défaut) : réseau de neurones [Apollo](https://github.com/JusperLee/Apollo) entraîné à restaurer
     les MP3 (24–128 kbps), converti en Core ML et exécuté sur le GPU. Reconstruit les aigus et corrige les artefacts
-    de compression sur tout le spectre. Voir `Tools/ConvertApollo` et `THIRD_PARTY_NOTICES.md` (CC BY-SA 4.0).
-  - **Traitement du signal** (Accelerate/vDSP), instantané :
-    réparation des crêtes écrêtées, comblement des trous spectraux, reconstruction des aigus par réplication de bande.
-  - Ou **Améliorations seules** : sans reconstruire les aigus, seulement les finitions, le mix et le remastering
-    ci-dessous, pour un fichier déjà complet ou pour garder son spectre d'origine.
-- **Finitions** après chaque moteur, réglées sur le fichier et mesurées :
-  - **Attaques** : retire le pré-écho, ce souffle que le MP3 étale juste avant les percussions ;
-  - **Brillance** : ramène les aigus reconstruits au niveau que prédit la pente du spectre ;
-  - **Espace** : rouvre l'image stéréo si l'encodeur l'a resserrée dans les aigus (rien n'est fait sinon).
-- **Remastering**, seulement pour les défauts détectés (un bon master ressort tel quel) :
-  - **Équilibre tonal** : redonne de la clarté à un son sourd, allège un grave ou un bas-médium en excès ;
-  - **Punch** : rend leurs attaques aux masters écrasés par le limiteur (transient shaper sur trois bandes) ;
-  - **Volume** : remonte un master trop faible vers −14 LUFS, avec un limiteur true peak à −1 dBTP.
+    de compression sur tout le spectre ; « Renforcer les aigus recréés » les ramène au niveau que prédit la pente du
+    spectre. Voir `Tools/ConvertApollo` et `THIRD_PARTY_NOTICES.md` (CC BY-SA 4.0).
+  - **Traitement du signal** (Accelerate/vDSP), instantané : comblement des trous spectraux, reconstruction des aigus
+    par réplication de bande.
+  - **Sans reconstruction** : le spectre d'origine est gardé, seules les étapes ci-dessous s'appliquent.
+- **Réparations**, seulement là où le défaut est présent : saturation (crêtes écrêtées redessinées), pré-écho (le
+  souffle que le MP3 étale juste avant les percussions), image stéréo resserrée dans les aigus par l'encodeur.
 - **Mix**, sans séparer les instruments :
   - **Voix** : curseur de −6 à +6 dB sur ce qui est au centre de l'image, là où la voix est mixée ;
-  - **Grave resserré** : basse et grosse caisse en mono sous 120 Hz ;
-  - **Sifflantes et duretés** (à activer à l'écoute) : de-esser et contrôle dynamique des médiums, qui ne visent que les pics extrêmes.
+  - **Sifflantes et duretés** (à activer à l'écoute) : de-esser et contrôle dynamique des médiums, qui ne visent que les pics extrêmes ;
+  - **Grave en mono** : basse et grosse caisse au centre sous 120 Hz.
+- **Master**, seulement pour les défauts détectés (un bon master ressort tel quel) :
+  - **Équilibre tonal** : redonne de la clarté à un son sourd, allège un grave ou un bas-médium en excès ;
+  - **Punch** : rend sa dynamique à un master écrasé par le limiteur (transient shaper sur trois bandes) ;
+  - **Volume et crêtes** : remonte un master trop faible vers −14 LUFS, avec un limiteur true peak à −1 dBTP.
+- **Intensité** (Subtil, Équilibré, Intense) : dose les corrections automatiques ; « Équilibré » corrige ce que les
+  mesures justifient.
 - **Export** 16 bits / 44,1 kHz avec dither TPDF : ALAC, WAV, ou AAC 256 kbps (le format d'Apple Music et des AirPods).
 - **Comparaison** : spectrogramme avant/après avec séparateur glissable, écoute A/B synchronisée sans coupure et à volume égal, pour que la version la plus forte ne paraisse pas meilleure à tort. La lecture passe par `AVPlayer` : avec des AirPods, l'audio spatial (stéréo spatialisée, suivi de la tête) se règle depuis le centre de contrôle, et le morceau apparaît dans « À l'écoute » et sur l'écran verrouillé.
 - **Activité en direct** : pendant une restauration, l'écran verrouillé et la Dynamic Island montrent le vinyle du morceau et un spectre qui s'allume des graves jusqu'aux aigus reconstruits. Refine continue quelques instants après avoir quitté l'app ; si iOS la suspend, l'activité passe « En pause » et la restauration reprend au retour dans l'app (extension `RefineWidgets`, données partagées dans `RefineShared`).

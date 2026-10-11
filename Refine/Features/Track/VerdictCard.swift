@@ -114,14 +114,19 @@ struct VerdictCard: View {
 }
 
 extension TonalProfile {
+    /// "Chargée en grave · brillante"
     var title: String {
-        switch kind {
-        case .dull: "Sourde"
-        case .balanced: "Équilibrée"
-        case .bright: "Brillante"
-        case .heavy: "Chargée en grave"
-        case .thin: "Maigre"
+        let words = issues.map { issue in
+            switch issue {
+            case .dull: "sourde"
+            case .bright: "brillante"
+            case .heavyBass: "chargée en grave"
+            case .thinBass: "maigre"
+            case .muddy: "bas-médium chargé"
+            }
         }
+        guard let first = words.first else { return "Équilibrée" }
+        return ([first.prefix(1).uppercased() + first.dropFirst()] + words.dropFirst()).joined(separator: " · ")
     }
 }
 

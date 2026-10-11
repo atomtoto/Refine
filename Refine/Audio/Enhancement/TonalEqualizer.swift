@@ -24,7 +24,14 @@ struct TonalEqualizer {
         let tilt = min(max(-excess(profile.tilt, tolerance: TonalProfile.tiltTolerance), -maximumTilt), maximumTilt)
         let bass = min(max(-0.7 * excess(profile.bass, tolerance: TonalProfile.bassTolerance), -5), 4)
         let mud = max(-0.7 * max(profile.mud - TonalProfile.mudTolerance, 0), -4)
-        let equalizer = TonalEqualizer(tilt: tilt * amount, bass: bass * amount, mud: mud * amount)
+        // « Intense » goes further than « Équilibré », never past the measured deviation.
+        func dosed(_ correction: Double, deviation: Double) -> Double {
+            let value = correction * amount
+            return value.sign == .minus ? max(value, -abs(deviation)) : min(value, abs(deviation))
+        }
+        let equalizer = TonalEqualizer(
+            tilt: dosed(tilt, deviation: profile.tilt), bass: dosed(bass, deviation: profile.bass),
+            mud: dosed(mud, deviation: profile.mud))
         return abs(equalizer.tilt) < 0.1 && abs(equalizer.bass) < 0.3 && abs(equalizer.mud) < 0.3 ? nil : equalizer
     }
 

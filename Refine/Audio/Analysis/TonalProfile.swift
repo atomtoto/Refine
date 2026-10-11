@@ -31,6 +31,19 @@ struct TonalProfile: Codable, Hashable, Sendable {
         return .balanced
     }
 
+    enum Issue: Hashable, Sendable {
+        case dull, bright, heavyBass, thinBass, muddy
+    }
+
+    /// Every deviation beyond its tolerance: the equaliser corrects all of them, not only the one `kind` names.
+    var issues: [Issue] {
+        var issues: [Issue] = []
+        if tilt < -Self.tiltTolerance { issues.append(.dull) } else if tilt > Self.tiltTolerance { issues.append(.bright) }
+        if bass > Self.bassTolerance { issues.append(.heavyBass) } else if bass < -Self.bassTolerance { issues.append(.thinBass) }
+        if mud > Self.mudTolerance { issues.append(.muddy) }
+        return issues
+    }
+
     /// Change in dB at 4 kHz the tilt amounts to, a figure people can relate to.
     var presenceOffset: Double { tilt * log2(4_000 / 1_000) }
 

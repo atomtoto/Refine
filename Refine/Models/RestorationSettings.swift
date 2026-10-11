@@ -60,11 +60,12 @@ struct RestorationSettings: Codable, Hashable, Sendable {
         }
     }
 
+    /// How the band the codec removed is rebuilt, if at all.
     enum Engine: String, Codable, CaseIterable, Identifiable, Sendable {
-        /// Hand-written signal processing: instant, light, conservative.
-        case signal
         /// Apollo neural network, trained to undo MP3 compression.
         case apollo
+        /// Hand-written signal processing: instant, light, conservative.
+        case signal
         /// No reconstruction: only the finishing, mix and remastering stages.
         case enhancementsOnly
 
@@ -107,10 +108,9 @@ struct RestorationSettings: Codable, Hashable, Sendable {
 
     var engine: Engine = ApolloModel.isBundled ? .apollo : .signal
     var computeUnits: ComputeUnits = .gpu
+    /// How strongly the automatic corrections act.
     var preset: Preset = .balanced
-    /// How strongly the finishing and remastering stages act, 0.1…1.
-    var intensity: Double = Preset.balanced.intensity
-    /// Signal engine: band replication. Both engines: bring the rebuilt highs to a natural level.
+    /// Apollo: bring the rebuilt highs up to a natural level. The signal engine always does.
     var extendBandwidth = true
     var fillSpectralHoles = true
     var restoreTransients = true
@@ -131,11 +131,22 @@ struct RestorationSettings: Codable, Hashable, Sendable {
     var exportFormat: ExportFormat = .alac
 
     init() {}
+
+    var intensity: Double { preset.intensity }
+
+    /// Whether the air stage lifts the band the engine rebuilt.
+    var boostsRebuiltHighs: Bool {
+        switch engine {
+        case .apollo: extendBandwidth
+        case .signal: true
+        case .enhancementsOnly: false
+        }
+    }
 }
 
 extension RestorationSettings {
     private enum CodingKeys: String, CodingKey {
-        case engine, computeUnits, preset, intensity, extendBandwidth, fillSpectralHoles, restoreTransients,
+        case engine, computeUnits, preset, extendBandwidth, fillSpectralHoles, restoreTransients,
              restoreStereo, declip, rebalanceTone, restorePunch, adjustLoudness, vocalLevel, tameSibilance, tightenBass, exportFormat
     }
 
@@ -149,7 +160,6 @@ extension RestorationSettings {
         engine = value(.engine, defaults.engine)
         computeUnits = value(.computeUnits, defaults.computeUnits)
         preset = value(.preset, defaults.preset)
-        intensity = value(.intensity, defaults.intensity)
         extendBandwidth = value(.extendBandwidth, defaults.extendBandwidth)
         fillSpectralHoles = value(.fillSpectralHoles, defaults.fillSpectralHoles)
         restoreTransients = value(.restoreTransients, defaults.restoreTransients)

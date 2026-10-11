@@ -136,8 +136,9 @@ final class MixEnhancer {
         // Detection listens to the centre, where the voice is; hi-hats and cymbals spread wide weigh less.
         let centred = (0..<bins).map { power[$0] * centre[$0] * centre[$0] }
         var decibels = [Double](repeating: 0, count: bins)
+        var vocal = [Double](repeating: 0, count: bins)
         if options.vocalLevel != 0 {
-            for k in 0..<bins { decibels[k] += options.vocalLevel * vocalWeights[k] * pow(centre[k], 3) }
+            for k in 0..<bins { vocal[k] = options.vocalLevel * vocalWeights[k] * pow(centre[k], 3) }
         }
         if options.tameSibilance {
             let sibilant = update(&sibilance, power: centred)
@@ -162,7 +163,8 @@ final class MixEnhancer {
             }
         }
 
-        for k in 0..<bins { gains[k] = Float(pow(10, decibels[k] * options.amount / 20)) }
+        // The voice level is the listener's own setting: the intensity doesn't scale it.
+        for k in 0..<bins { gains[k] = Float(pow(10, (decibels[k] * options.amount + vocal[k]) / 20)) }
         for c in spectra.indices {
             for k in 0..<bins {
                 spectra[c].real[k] *= gains[k]

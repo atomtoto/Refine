@@ -24,7 +24,8 @@ final class SpectralRestorer {
             cutoff = analysis.cutoffFrequency
             slope = analysis.spectralSlope
             intensity = min(max(settings.intensity, 0.1), 1)
-            extendBandwidth = settings.extendBandwidth && analysis.hasMissingHighs
+            // Choosing this engine means rebuilding the highs.
+            extendBandwidth = analysis.hasMissingHighs
             fillHoles = settings.fillSpectralHoles && analysis.hasMissingHighs
         }
 

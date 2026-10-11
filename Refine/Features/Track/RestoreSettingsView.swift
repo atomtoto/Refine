@@ -37,7 +37,7 @@ struct RestoreSettingsView: View {
 
     private var highsSection: some View {
         Section {
-            Picker("Reconstruction des aigus", selection: $settings.engine) {
+            Picker("Moteur de restauration", selection: $settings.engine) {
                 ForEach(RestorationSettings.Engine.allCases) { engine in
                     Label {
                         Text(engine.title)
@@ -68,7 +68,7 @@ struct RestoreSettingsView: View {
                 EmptyView()
             }
         } header: {
-            Text("Reconstruction des aigus")
+            Text("Moteur de restauration")
         } footer: {
             // Markdown, for the licence and source links.
             Text(LocalizedStringKey(highsFooter))
@@ -124,7 +124,7 @@ struct RestoreSettingsView: View {
             .accessibilityValue(vocalLevelText)
             setting("Adoucir sifflantes et duretés",
                     detail: "Calme les « s » qui piquent et les pics agressifs des médiums. À essayer à l'écoute : sur certains morceaux, c'est le style.",
-                    systemImage: "mouth", isOn: $settings.tameSibilance)
+                    systemImage: "wind", isOn: $settings.tameSibilance)
             setting("Grave en mono", detail: monoBassDetail, systemImage: "circle.and.line.horizontal",
                     isOn: $settings.tightenBass)
         } header: {
@@ -275,9 +275,9 @@ extension RestorationSettings.Engine {
     var detail: String {
         switch self {
         case .apollo: isAvailable
-            ? "Réseau de neurones entraîné à restaurer les MP3. Plus lent, plus naturel."
+            ? "Réseau de neurones entraîné à défaire la compression MP3 : corrige les artefacts sur tout le spectre et recrée les aigus. Plus lent, plus naturel."
             : "Modèle non inclus dans cette version."
-        case .signal: "Instantané : prolonge le spectre en recopiant les harmoniques existantes."
+        case .signal: "Instantané : recrée les aigus en recopiant les harmoniques existantes, et comble les trous du spectre."
         case .enhancementsOnly: "Garde le spectre d'origine : seules les réparations, le mix et le master s'appliquent."
         }
     }

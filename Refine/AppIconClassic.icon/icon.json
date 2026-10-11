@@ -23,13 +23,13 @@
             }
           ],
           "glass" : false,
-          "image-name" : "Chevrons.svg",
+          "image-name" : "Chevrons 2.svg",
           "name" : "Chevrons",
           "position" : {
-            "scale" : 1.3,
+            "scale" : 1.4,
             "translation-in-points" : [
               0,
-              -29
+              0
             ]
           }
         },
@@ -48,13 +48,13 @@
             }
           ],
           "glass" : true,
-          "image-name" : "Knob.svg",
+          "image-name" : "Knob 2.svg",
           "name" : "Knob",
           "position" : {
-            "scale" : 1.3,
+            "scale" : 1.54,
             "translation-in-points" : [
               0,
-              -29
+              0
             ]
           }
         },
@@ -74,22 +74,23 @@
             {
               "appearance" : "light",
               "value" : {
-                "solid" : "display-p3:0.87109,0.88110,0.88110,0.94000"
+                "solid" : "display-p3:0.87109,0.88110,0.88110,0.85000"
               }
             }
           ],
           "glass" : true,
-          "image-name" : "Divider.svg",
+          "image-name" : "Divider 2.svg",
           "name" : "Divider",
           "position" : {
-            "scale" : 1.3,
+            "scale" : 1,
             "translation-in-points" : [
               0,
-              142
+              0
             ]
           }
         }
       ],
+      "name" : "Group",
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
@@ -132,7 +133,7 @@
             "scale" : 1.2,
             "translation-in-points" : [
               0,
-              129
+              104
             ]
           }
         }

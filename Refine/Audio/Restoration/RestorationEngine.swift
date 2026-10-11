@@ -50,6 +50,7 @@ extension RestorationSettings.Engine {
         switch self {
         case .signal: DSPRestorationEngine()
         case .apollo: ApolloRestorationEngine()
+        case .enhancementsOnly: EnhancementOnlyEngine()
         }
     }
 }

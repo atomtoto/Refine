@@ -162,6 +162,8 @@ private struct StatusLabel: View {
             Label("Restauration par l'IA Apollo", systemImage: "brain")
         case (.restoring, .engine, .signal):
             Label("Reconstruction des aigus", systemImage: "wand.and.sparkles")
+        case (.restoring, .engine, .enhancementsOnly):
+            Label("Lecture du morceau", systemImage: "waveform")
         case (.restoring, .finishing, _):
             Label("Finitions : équilibre, attaques, volume", systemImage: "slider.horizontal.3")
         case (.paused, _, _):

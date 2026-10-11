@@ -68,12 +68,14 @@ struct RestoreSettingsView: View {
                 }
 
                 Section {
-                    Toggle(isOn: $settings.extendBandwidth) {
-                        Label {
-                            Text(settings.engine == .apollo ? "Renforcer les aigus reconstruits" : "Reconstruire les aigus")
-                            Text(extendDetail).font(.footnote)
-                        } icon: {
-                            Image(systemName: "arrow.up.and.down.text.horizontal")
+                    if settings.engine.rebuildsHighs {
+                        Toggle(isOn: $settings.extendBandwidth) {
+                            Label {
+                                Text(settings.engine == .apollo ? "Renforcer les aigus reconstruits" : "Reconstruire les aigus")
+                                Text(extendDetail).font(.footnote)
+                            } icon: {
+                                Image(systemName: "arrow.up.and.down.text.horizontal")
+                            }
                         }
                     }
                     if settings.engine == .signal {
@@ -113,8 +115,13 @@ struct RestoreSettingsView: View {
                 } header: {
                     Text("Étapes")
                 } footer: {
-                    if settings.engine == .apollo {
+                    switch settings.engine {
+                    case .apollo:
                         Text("Apollo reconstruit les aigus et corrige les artefacts sur tout le spectre ; les étapes ci-dessus finissent le travail.")
+                    case .enhancementsOnly:
+                        Text("Le spectre reste tel quel : seules les finitions, le mix et le remastering s'appliquent.")
+                    case .signal:
+                        EmptyView()
                     }
                 }
 
@@ -285,6 +292,7 @@ extension RestorationSettings.Engine {
         case .apollo: isAvailable
             ? "Réseau de neurones entraîné à restaurer les MP3. Plus lent, plus naturel."
             : "Modèle non inclus dans cette version."
+        case .enhancementsOnly: "Sans reconstruire les aigus : seulement les finitions, le mix et le remastering."
         }
     }
 
@@ -292,6 +300,7 @@ extension RestorationSettings.Engine {
         switch self {
         case .signal: "waveform.path"
         case .apollo: "brain"
+        case .enhancementsOnly: "slider.horizontal.3"
         }
     }
 }

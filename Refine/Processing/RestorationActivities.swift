@@ -33,10 +33,15 @@ final class RestorationActivities {
     func start(for track: Track, engine: RestorationSettings.Engine) async {
         running.insert(track.id)
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let activityEngine: RestorationActivityAttributes.Engine = switch engine {
+        case .signal: .signal
+        case .apollo: .apollo
+        case .enhancementsOnly: .enhancementsOnly
+        }
         let attributes = RestorationActivityAttributes(
             title: track.title,
             artist: track.artist,
-            engine: engine == .apollo ? .apollo : .signal,
+            engine: activityEngine,
             labelColors: await Self.labelColors(for: track))
         let state = State(phase: .restoring, fraction: 0, stage: .engine)
         // A bonus: the restoration runs the same without its Live Activity.

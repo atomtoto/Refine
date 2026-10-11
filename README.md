@@ -11,6 +11,8 @@ Refine is an iOS app that enhances and restores music quality from your audio fi
     de compression sur tout le spectre. Voir `Tools/ConvertApollo` et `THIRD_PARTY_NOTICES.md` (CC BY-SA 4.0).
   - **Traitement du signal** (Accelerate/vDSP), instantané :
     réparation des crêtes écrêtées, comblement des trous spectraux, reconstruction des aigus par réplication de bande.
+  - Ou **Améliorations seules** : sans reconstruire les aigus, seulement les finitions, le mix et le remastering
+    ci-dessous, pour un fichier déjà complet ou pour garder son spectre d'origine.
 - **Finitions** après chaque moteur, réglées sur le fichier et mesurées :
   - **Attaques** : retire le pré-écho, ce souffle que le MP3 étale juste avant les percussions ;
   - **Brillance** : ramène les aigus reconstruits au niveau que prédit la pente du spectre ;

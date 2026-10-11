@@ -55,7 +55,7 @@ struct VerdictCard: View {
             if let restoredAnalysis {
                 Divider()
                 Label {
-                    Text("Après Refine\(restoredEngine.map { " (\($0))" } ?? "") : spectre étendu jusqu'à \(restoredAnalysis.cutoffFrequency.kilohertz), en \(restoredAnalysis.codec == .aac ? "AAC 256 kbps" : "16 bits · 44,1 kHz").")
+                    Text("Après Refine\(restoredEngine.map { " (\($0))" } ?? "") : \(spectrumSummary(restoredAnalysis)), en \(restoredAnalysis.codec == .aac ? "AAC 256 kbps" : "16 bits · 44,1 kHz").")
                 } icon: {
                     Image(systemName: "sparkles")
                         .foregroundStyle(.tint)
@@ -71,6 +71,12 @@ struct VerdictCard: View {
         }
         .padding(20)
         .glassEffect(.regular, in: .rect(cornerRadius: 28))
+    }
+
+    private func spectrumSummary(_ restored: AudioAnalysis) -> String {
+        restored.cutoffFrequency > analysis.cutoffFrequency + 500
+            ? "spectre étendu jusqu'à \(restored.cutoffFrequency.kilohertz)"
+            : "spectre d'origine conservé"
     }
 
     private var stereoDescription: String {

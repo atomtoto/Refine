@@ -41,7 +41,8 @@ final class EnhancementChain {
                 .flatMap { TonalEqualizer.make(profile: $0, amount: amount) }
             : nil
         self.tonal = tonal
-        air = settings.extendBandwidth
+        // Without reconstruction there's no rebuilt band to bring up, only the codec's empty one.
+        air = settings.extendBandwidth && settings.engine.rebuildsHighs
             ? AirEqualizer.make(
                 averagePower: mid, binWidth: statistics.binWidth, cutoff: analysis.cutoffFrequency, amount: amount,
                 correction: { tonal?.gain(at: $0) ?? 0 })

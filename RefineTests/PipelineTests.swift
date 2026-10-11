@@ -69,4 +69,21 @@ struct PipelineTests {
         let intermediate = destination.deletingPathExtension().appendingPathExtension("pass1.caf")
         #expect(!FileManager.default.fileExists(atPath: intermediate.path(percentEncoded: false)))
     }
+
+    @Test func enhancementsOnlyKeepsTheSpectrum() async throws {
+        let source = try makeBandLimitedFile()
+        let destination = temporaryURL("wav")
+        let analysis = try await AudioAnalyzer.analyze(url: source).analysis
+        var settings = RestorationSettings()
+        settings.engine = .enhancementsOnly
+        settings.exportFormat = .wav
+        let job = RestorationJob(source: source, destination: destination, analysis: analysis, settings: settings)
+        let output = try EnhancementOnlyEngine.run(job) { _ in }
+
+        let restored = try AVAudioFile(forReading: destination)
+        #expect(abs(Double(restored.length) / 44_100 - 2) < 0.01)
+        #expect(output.engine == EnhancementOnlyEngine.name)
+        // Nothing is rebuilt above the cutoff.
+        #expect(abs(output.analysis.cutoffFrequency - analysis.cutoffFrequency) < 300)
+    }
 }

@@ -4,7 +4,7 @@ import SwiftUI
 /// The Live Activity shown while Refine restores a track. Compiled into both the app and the widget extension.
 struct RestorationActivityAttributes: ActivityAttributes {
     enum Engine: String, Codable, Hashable {
-        case signal, apollo
+        case signal, apollo, enhancementsOnly
     }
 
     struct ContentState: Codable, Hashable {

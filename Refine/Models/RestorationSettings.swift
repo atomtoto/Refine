@@ -65,6 +65,8 @@ struct RestorationSettings: Codable, Hashable, Sendable {
         case signal
         /// Apollo neural network, trained to undo MP3 compression.
         case apollo
+        /// No reconstruction: only the finishing, mix and remastering stages.
+        case enhancementsOnly
 
         var id: Self { self }
 
@@ -72,15 +74,19 @@ struct RestorationSettings: Codable, Hashable, Sendable {
             switch self {
             case .signal: DSPRestorationEngine.name
             case .apollo: ApolloRestorationEngine.name
+            case .enhancementsOnly: EnhancementOnlyEngine.name
             }
         }
 
         var isAvailable: Bool {
             switch self {
-            case .signal: true
+            case .signal, .enhancementsOnly: true
             case .apollo: ApolloModel.isBundled
             }
         }
+
+        /// Whether this engine rebuilds the band above the cutoff.
+        var rebuildsHighs: Bool { self != .enhancementsOnly }
     }
 
     /// Which processors Core ML may use for neural engines. The Neural Engine is left out on purpose: it only

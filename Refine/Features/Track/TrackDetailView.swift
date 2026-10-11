@@ -253,6 +253,7 @@ private extension TrackProcessor.RestorationState {
         case (.finishing, _): "Finitions : équilibre, attaques, punch, volume…"
         case (.engine, .apollo): "Restauration par l'IA…"
         case (.engine, .signal): "Reconstruction des aigus…"
+        case (.engine, .enhancementsOnly): "Lecture du morceau…"
         }
     }
 
@@ -261,6 +262,7 @@ private extension TrackProcessor.RestorationState {
         case (.finishing, _): "slider.horizontal.3"
         case (.engine, .apollo): "brain"
         case (.engine, .signal): "wand.and.sparkles"
+        case (.engine, .enhancementsOnly): "waveform"
         }
     }
 }
